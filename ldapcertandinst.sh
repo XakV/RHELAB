@@ -11,6 +11,7 @@ yum -y install openldap openldap-servers openldap-clients migrationtools nss-uti
 # This is way more than what is needed for setting networkingl I borrowed from another script I worked on
 # and didnt feel like cutting it down
 
+setenforce 0
 hostnamectl set-hostname instructor.example.com
 
 echo "Determining host networking...."
@@ -22,7 +23,7 @@ case $netw in
 		[ $? -eq 0 ] && echo "localhost ok" || { echo "localhost not ok"; exit 1; } ;;
 	eth[0-9]:)
 		ipadrss=`ip addr show $netw | awk '/inet/{ print $2;exit; }' | cut -d"/" -f1` 
-		ethdev=$netw
+		ethdev=`cut -d':' -f1 $netw`
 		ping -c 1 $ipadrss > /dev/null
 		[ $? -eq 0 ] && echo "ethernet ok" || { echo "ethernet not ok"; exit 1; }
 		echo "IP Address of host stored as $ipadrss"
@@ -190,7 +191,7 @@ fi
 
 #configure
 
-# cd /etc/openldap/schema
+cd /etc/openldap/schema
 ldapadd -Y EXTERNAL -H ldapi:/// -D "cn=config" -f cosine.ldif
 ldapadd -Y EXTERNAL -H ldapi:/// -D "cn=config" -f nis.ldif
 
