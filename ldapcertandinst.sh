@@ -27,11 +27,11 @@ case $netw in
 		ping -c 1 $ipadrss > /dev/null
 		[ $? -eq 0 ] && echo "ethernet ok" || { echo "ethernet not ok"; exit 1; }
 		echo "IP Address of host stored as $ipadrss"
-		nmcli c mod $ethdev ipv4.method auto ipv4.addresses "$ipadrss/24"
-		echo $? " is exit status of nmcli command"
-		echo "Configured $ethdev for static ip $ipaddrss/24 "
-		echo "$lo instructor.example.com" >> /etc/hosts
-		echo "$ethdev instructor.example.com" >> /etc/hosts
+		# nmcli c mod $ethdev ipv4.method auto ipv4.addresses "$ipadrss/24"
+		# echo $? " is exit status of nmcli command"
+		# echo "Configured $ethdev for static ip $ipaddrss/24 "
+		echo "127.0.0.1 instructor.example.com" >> /etc/hosts
+		echo "$ipadrss instructor.example.com" >> /etc/hosts
 		cat /etc/hosts;;
 	br[0-100]:)
 		echo "Bridged ethernet present"
