@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 # Script to create Mozilla NSS certificates for openLDAP
 # Install packages needed and configure server
 # If installing client and server on a separate machine migrationtools,openldap-servers and migrationtools are not
@@ -6,7 +6,7 @@
 # Lots of things I could probably do better, rewrite in python maybe
 # Todo - add this to a kickstart file, include the changes.ldif and base.ldif creation in the script
 
-yum -y install openldap openldap-servers openldap-clients migrationtools nss-utils sssd authconfig authconfig-gtk
+yum -y install openldap openldap-servers openldap-clients migrationtools nss-utils sssd authconfig authconfig-gtk expect
 
 # This is way more than what is needed for setting networkingl I borrowed from another script I worked on
 # and didnt feel like cutting it down
@@ -71,11 +71,11 @@ head -c 100 /dev/urandom >> noise.txt
 #I specify rsa security here, even though it is the default and has some vulnerabilities
 #elliptical curve i think is the recommended, but I just wanted to get a lab working
 
-#create the database
-certutil -d /root/ldapca -N -f /root/ldapca/capassword
+#create the database. 
+certutil -d /root/ldapca -N -f /root/ldapca/capassword 
 
 #create the signing key pair
-certutil -d /root/ldapca -G -z noise.txt /root/ldapca/capassword
+certutil -d /root/ldapca -G -z noise.txt -f /root/ldapca/capassword
 
 #create the CA cert
 certutil -d /root/ldapca -S -k rsa -n "CA-certificate" -s "cn=LDAP_CA,dc=example,dc=com" -x -t "PCT,," -m 1000 -z /root/ldapca/noise.txt -f /root/ldapca/capassword 
@@ -87,7 +87,7 @@ certutil -d /root/ldapca -S -k rsa -n "OpenLDAP-Server" -s "cn=instructor.exampl
 certutil -d /root/ldapca -S -k rsa -n "Auth-Client" -s "cn=auth,dc=example,dc=com" -c "CA-certificate" -t "u,u,u" -m 1002 -z /root/ldapca/noise.txt -f /root/ldapca/capassword
 
 #Export the CA cert
-certutil -d /root/ldapca/ -L -n "CA-certificate" -a > /root/ldapca/cacert.pem
+certutil -d /root/ldapca/ -L -n "CA-certificate" -a > /root/ldapca/cacert.pem -f /root/ldapca/capassword
 
 #Export the LDAP server certificate and key
 pk12util -d /root/ldapca/ -o ldapserver.p12 -n "OpenLDAP-Server" -k /root/ldapca/capassword -w /root/ldapca/password
@@ -147,7 +147,7 @@ authconfig \
 
 echo "ldap_tls_cacertdir = /etc/openldap/certs" >> /etc/sssd/sssd.conf
 echo "entry_cache_timeout = 600 " >> /etc/sssd/sssd.conf
-echo "ldap_network_timeout = 3" >> /etc/sssd/sssd/conf
+echo "ldap_network_timeout = 3" >> /etc/sssd/sssd.conf
 
 
 #Do I need to make changes to nscd.conf to stop caching?
@@ -175,14 +175,14 @@ cp /usr/share/openldap-servers/DB_CONFIG.example /var/lib/ldap/DB_CONFIG
 
 #check to see if slaptest is ok then change ownership to ldap user - enable - start slapd
 
-slaptest
+slaptest 2> /dev/null
 
 if [ $? -eq 1 ] 
 then
 	chown -R ldap:ldap /var/lib/ldap
 	systemctl enable slapd
 	systemctl start slapd
-	netstat -lt | grep ldap
+	ss -tap | grep ldap
 else
 	echo "slapd enable failed"
 	systemctl status slapd
@@ -247,6 +247,8 @@ firewall-cmd --reload
 echo "local4.* /var/log/ldap.log" >> /etc/rsyslog.conf
 systemctl restart rsyslog
 
+#check to make sure LDAP is working. Finish if ok. Error if not
 
-echo "COMPLETE"
-		
+ldapsearch -ZZ -x '(objectclass=*)'
+[ $? -eq 0 ] && { echo "Complete with no errors"; } || { echo "Something went wrong\
+	Please report errors to https://github.com/Aikidouke/RHELAB"; exit 1; }
