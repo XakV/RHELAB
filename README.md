@@ -20,5 +20,6 @@ To install;
 3. ./ldapcertandinst.sh
 
 
-Note - This is my first "real" script, so I would love to have feedback on things I could do better. 
+Note - This is my first "real" script, so I would love to have feedback on things I could 
+do better. 
 
