@@ -6,10 +6,12 @@ I am in no way asserting what will or will not be included in any examination by
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-I've verified the script runs on a CentOS 7 Minimal install and installs a working LDAP server and client with SSSD.
-The script creates users ldapuser1 through ldapuser10. All users have the password "Z0mgbee!"
+I've verified the script runs on a CentOS 7 Minimal install and installs a working LDAP server and 
+client with SSSD. The script creates users ldapuser1 through ldapuser10. All users have the 
+password "Z0mgbee!"
 
-I am sure the script will not work on CentOS 6.x or earlier and don't care to do that. It has not been tested on any Fedora, RHEL, or Scientific Linux release.
+I am sure the script will not work on CentOS 6.x or earlier and don't care to do that. It has not 
+been tested on any Fedora, RHEL, or Scientific Linux release.
 
 To install;
 
