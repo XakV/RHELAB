@@ -201,6 +201,8 @@ ldapadd -Y EXTERNAL -H ldapi:/// -D "cn=config" -f nis.ldif
 
 [ -f /etc/openldap/changes.ldif ] && { ldapmodify -Y EXTERNAL -H ldapi:/// -f /etc/openldap/changes.ldif; } || { echo "failed to modify changes.ldif"; exit 1; }
 
+systemctl restart slapd
+systemctl restart sssd
 
 [ -f /base.ldif ] && cp /base.ldif /etc/openldap/base.ldif || { echo "Dude you need an ldif"; exit 1; }
 
