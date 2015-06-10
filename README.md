@@ -16,8 +16,8 @@ been tested on any Fedora, RHEL, or Scientific Linux release.
 To install;
 
 1. Clone the repository to your server's / directory (not /root!)
-2. chmod +x ldapcertandinst.sh
-3. ./ldapcertandinst.sh
+2. chmod +x clean_ldap_sssd_installer.sh
+3. ./clean_ldap_sssd_installer.sh
 
 
 Note - This is my first "real" script, so I would love to have feedback on things I could 
